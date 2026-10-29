@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default deny all access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // 1. User Root Document & Subcollections: /users/{userId}/...
+    // Setiap user HANYA dapat membaca dan menulis dokumen/subkoleksi miliknya sendiri
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create, update, delete: if isOwner(userId) && isValidId(userId);
+
+      // Subkoleksi spesifik (notes, tasks, ai_logs, dll.)
+      match /{subcollection}/{docId} {
+        allow read, write: if isOwner(userId) && isValidId(docId);
+      }
+
+      // Subkoleksi bertingkat lebih dalam (nested subcollections)
+      match /{subcollection}/{docId}/{nested=**} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // 2. Koleksi Tingkat Atas (Top-level Collections): /{collectionName}/{docId}
+    // Jika dokumen disimpan di root collection dengan field 'userId' atau 'uid',
+    // hanya pemilik data yang diizinkan untuk read, write, update, atau delete.
+    match /{collectionName}/{docId} {
+      allow get: if isSignedIn() && (
+        resource.data.userId == request.auth.uid ||
+        resource.data.uid == request.auth.uid
+      );
+      allow list: if isSignedIn() && (
+        resource.data.userId == request.auth.uid ||
+        resource.data.uid == request.auth.uid
+      );
+      allow create: if isSignedIn() && isValidId(docId) && (
+        request.resource.data.userId == request.auth.uid ||
+        request.resource.data.uid == request.auth.uid
+      );
+      allow update, delete: if isSignedIn() && isValidId(docId) && (
+        resource.data.userId == request.auth.uid ||
+        resource.data.uid == request.auth.uid
+      );
+    }
+  }
+}

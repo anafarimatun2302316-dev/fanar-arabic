@@ -1,0 +1,84 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 254 },
+        "photoURL": { "type": "string", "maxLength": 500 },
+        "username": { "type": "string", "maxLength": 50 },
+        "role": { "type": "string", "maxLength": 20 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["uid", "displayName"]
+    },
+    "Note": {
+      "title": "Note",
+      "description": "User note and idea incubator record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 200 },
+        "content": { "type": "string", "maxLength": 20000 },
+        "category": { "type": "string", "maxLength": 50 },
+        "tags": { "type": "array", "description": "Tags list" },
+        "aiSummary": { "type": "string", "maxLength": 5000 },
+        "isPinned": { "type": "boolean" },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["userId", "title"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "User actionable task or milestone",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 255 },
+        "completed": { "type": "boolean" },
+        "priority": { "type": "string", "maxLength": 20 },
+        "dueDate": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["userId", "title", "completed"]
+    },
+    "AiLog": {
+      "title": "AiLog",
+      "description": "AI generation logs and brainstorm history",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "prompt": { "type": "string", "maxLength": 5000 },
+        "response": { "type": "string", "maxLength": 15000 },
+        "mode": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["userId", "prompt", "response"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile documents (owner only)"
+    },
+    "/users/{userId}/notes/{noteId}": {
+      "schema": "Note",
+      "description": "User personal notes collection (owner only)"
+    },
+    "/users/{userId}/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "User action items collection (owner only)"
+    },
+    "/users/{userId}/ai_logs/{logId}": {
+      "schema": "AiLog",
+      "description": "User AI prompts and synthesis logs (owner only)"
+    }
+  }
+}

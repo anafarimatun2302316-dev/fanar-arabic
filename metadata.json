@@ -1,0 +1,6 @@
+{
+  "name": "ThinkLog AI — Second Brain & Workspace",
+  "description": "Aplikasi workspace cerdas dengan Firebase Auth, Firestore per-user sync, server-side Gemini AI Express backend, dan sistem autentikasi multi-metode.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
